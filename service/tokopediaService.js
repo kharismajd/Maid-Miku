@@ -1,8 +1,10 @@
 const tokopediaOutbound = require("../outbound/tokopediaOutbound")
 const lineBotService = require("./lineBotService")
-const db = require('cyclic-dynamodb')
+const dotenv = require("dotenv")
 
-const items = db(process.env.CYCLIC_DB).collection("items")
+dotenv.config()
+
+orderData = {}
 
 async function getOrders(status) {
     const orderResult = await tokopediaOutbound.getOrders(status);
@@ -36,9 +38,10 @@ async function insertProcessedOrdersToDb() {
     
     var response = [];
     await Promise.all(processedOrder.map(async (order) => {
-        const existingItem = await items.get(order.orderId)
-        if (existingItem === null) {
-            await items.set(order.orderId, { tracking_count: 9 })
+        const existingItem = orderData.orderId
+        console.log(existingItem)
+        if (!existingItem) {
+            orderData.orderId = 0
             response.push(order);
         }
     }));
@@ -52,9 +55,9 @@ async function insertShippedOrdersToDb() {
     var response = [];
     await Promise.all(shippedOrder.map(async (order) => {
         const orderTracking = await getOrderTracking(order.orderId);
-        const existingItem = await items.get(order.orderId);
-        if (existingItem === null || orderTracking.length > existingItem.props.tracking_count) {
-            await items.set(order.orderId, { tracking_count: orderTracking.length })
+        const existingItem = orderData.orderId
+        if (!existingItem || orderTracking.length > existingItem.orderData.orderId) {
+            orderData.orderId = orderTracking.length
             order.log = orderTracking[0].status;
             response.push(order);
         }
@@ -68,9 +71,9 @@ async function insertArrivedOrdersToDb() {
 
     var response = []
     await Promise.all(arrivedOrder.map(async (order) => {
-        const existingItem = await items.get(order.orderId)
-        if (existingItem !== null) {
-            await items.delete(order.orderId)
+        const existingItem = orderData.orderId
+        if (existingItem) {
+            delete orderData.orderId
             response.push(order);
         }
     }))
