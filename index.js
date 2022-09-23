@@ -21,27 +21,14 @@ app.post('/callback', line.middleware(lineBotService.configuration), function(re
   res.status(200).send('OK')
 })
 
-function timenow() {
-  var now = new Date(),
-    ampm = 'am',
-    h = now.getHours(),
-    m = now.getMinutes(),
-    s = now.getSeconds();
-  if (h >= 12) {
-    if (h > 12) h -= 12;
-    ampm = 'pm';
-  }
-
-  if (m < 10) m = '0' + m;
-  if (s < 10) s = '0' + s;
-  return now.toLocaleDateString() + ' ' + h + ':' + m + ':' + s + ' ' + ampm;
-} 
 // Start the server
 const port = process.env.PORT || 3000
 app.listen(port, () => {
-  console.log(timenow());
   scheduler.scheduleJob({hour: process.env.TOKOPEDIA_ORDER_NOTIFY_HOUR, minute: process.env.TOKOPEDIA_ORDER_NOTIFY_MINUTE}, function() {
     tokopediaService.getAllOrders()
+  });
+  scheduler.scheduleJob('*/5 * * * * *', function() {
+    console.log("this test");
   })
   console.log(`index.js listening on ${port}`)
 })
