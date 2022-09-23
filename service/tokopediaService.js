@@ -2,7 +2,7 @@ const tokopediaOutbound = require("../outbound/tokopediaOutbound")
 const lineBotService = require("./lineBotService")
 const db = require('cyclic-dynamodb')
 
-const items = db('creepy-elk-glovesCyclicDB').collection("items")
+const items = db(process.env.CYCLIC_DB).collection("items")
 
 async function getOrders(status) {
     const orderResult = await tokopediaOutbound.getOrders(status);
