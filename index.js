@@ -21,14 +21,15 @@ app.post('/callback', line.middleware(lineBotService.configuration), function(re
   res.status(200).send('OK')
 })
 
+scheduler.scheduleJob({hour: process.env.TOKOPEDIA_ORDER_NOTIFY_HOUR, minute: process.env.TOKOPEDIA_ORDER_NOTIFY_MINUTE}, function() {
+  tokopediaService.getAllOrders()
+});
+scheduler.scheduleJob('*/5 * * * * *', function() {
+  console.log("this test");
+})
+
 // Start the server
 const port = process.env.PORT || 3000
 app.listen(port, () => {
-  scheduler.scheduleJob({hour: process.env.TOKOPEDIA_ORDER_NOTIFY_HOUR, minute: process.env.TOKOPEDIA_ORDER_NOTIFY_MINUTE}, function() {
-    tokopediaService.getAllOrders()
-  });
-  scheduler.scheduleJob('*/5 * * * * *', function() {
-    console.log("this test");
-  })
   console.log(`index.js listening on ${port}`)
 })
