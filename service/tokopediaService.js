@@ -20,6 +20,7 @@ async function getOrders(status) {
         })
         orderSummary.push({ orderId: order.verticalID, items: productNames })
     });
+    console.log(orderSummary)
     return orderSummary
 }
 
@@ -31,6 +32,8 @@ async function getOrderTracking(orderId) {
     orderTrackings.forEach(orderTracking => {
         orderTrackingSummary.push({time:orderTracking.date_time, status:orderTracking.status})
     })
+
+    console.log(orderTrackingSummary)
     return orderTrackingSummary
 }
 
