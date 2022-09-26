@@ -13,7 +13,7 @@ const userId = process.env.USER_ID;
 
 async function sleep() {
     const text = "Hello master, Miku will sleep now. Please refrain from waking me up so Miku will be ready to help you tomorrow \n\nGood night ;)"
-    await client.pushMessage(userId, {type: 'text', text: text})
+    await client.pushMessage(userId, {type: 'text', text: text}, false)
 }
 
 async function replyText(text, replyToken) {
@@ -25,7 +25,7 @@ async function notifyOrders(orders, notify) {
 
     if (notify) {
         if (orders.arrived.length === 0 || orders.shipped.length == 0 || orders.processed.length == 0) {
-            await client.pushMessage(userId, {type: 'text', text: text})
+            await client.pushMessage(userId, {type: 'text', text: text}, false)
             return
         }
     }
@@ -65,12 +65,12 @@ async function notifyOrders(orders, notify) {
     else {
         text += "\n\nThat's all, Have a good day XD"
     }
-    await client.pushMessage(userId, {type: 'text', text: text})
+    await client.pushMessage(userId, {type: 'text', text: text}, false)
 }
 
 async function notifyError() {
     const text = "Sorry master, There seems to be an error in Miku's system :(\n\nPlease help to fix it so Miku can give her best to help master :D"
-    await client.pushMessage(userId, {type: 'text', text: text})
+    await client.pushMessage(userId, {type: 'text', text: text}, false)
 }
 
 module.exports = {
