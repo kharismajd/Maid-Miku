@@ -23,13 +23,13 @@ app.post('/callback', line.middleware(lineBotService.configuration), function(re
   res.status(200).send('OK')
 })
 
-app.post('./miku-tokped-update', async function(req, res) {
-  const notify = req.query.notify;
+app.post('/miku-tokped-update', async function(req, res) {
+  const notify = parseInt(req.query.notify);
   await tokopediaService.getAllOrders(notify);
   res.status(200).send('OK');
 })
 
-app.post('./miku-sleep', async function(req, res) {
+app.post('/miku-sleep', async function(req, res) {
   await lineBotService.sleep();
   res.status(200).send('OK');
 })
