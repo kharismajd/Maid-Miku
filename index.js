@@ -3,9 +3,6 @@ const line = require('@line/bot-sdk')
 const scheduler = require('node-schedule');
 const lineBotService = require("./service/lineBotService");
 const tokopediaService = require("./service/tokopediaService");
-const dotenv = require("dotenv")
-
-dotenv.config()
 
 const app = express()
 

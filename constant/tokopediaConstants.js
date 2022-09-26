@@ -1,7 +1,3 @@
-const dotenv = require("dotenv")
-
-dotenv.config()
-
 const TOKOPEDIA_SID = process.env.TOKOPEDIA_SID
 
 module.exports =  {
