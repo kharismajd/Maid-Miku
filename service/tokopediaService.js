@@ -1,6 +1,9 @@
 const tokopediaOutbound = require("../outbound/tokopediaOutbound")
 const lineBotService = require("./lineBotService")
 const db = require('cyclic-dynamodb')
+const dotenv = require("dotenv")
+
+dotenv.config()
 
 const items = db(process.env.CYCLIC_DB).collection("items")
 
@@ -8,7 +11,7 @@ async function getOrders(status) {
     const orderResult = await tokopediaOutbound.getOrders(status);
     const orders = orderResult.data[0].data.uohOrders.orders
 
-    orderSummary = []
+    var orderSummary = []
     orders.forEach(order => {
         var productNames = [];
         const products = order.metadata.products
@@ -78,16 +81,18 @@ async function insertArrivedOrdersToDb() {
     return response;
 }
 
-async function getAllOrders() {
+async function getAllOrders(notify) {
     try {
         const arrived = await insertArrivedOrdersToDb();
         const shipped = await insertShippedOrdersToDb();
         const processed = await insertProcessedOrdersToDb();
         const orders = {arrived, shipped, processed};
-        lineBotService.notifyOrders(orders);
+        await lineBotService.notifyOrders(orders, notify);
     } catch(error) {
         console.log(error)
-        lineBotService.notifyError();
+        if (notify) {
+            await lineBotService.notifyError();
+        }
     }
 }
 

@@ -1,8 +1,10 @@
 const express = require('express');
 const line = require('@line/bot-sdk')
-const scheduler = require('node-schedule');
 const lineBotService = require("./service/lineBotService");
 const tokopediaService = require("./service/tokopediaService");
+const dotenv = require("dotenv")
+
+dotenv.config()
 
 const app = express()
 
@@ -21,14 +23,19 @@ app.post('/callback', line.middleware(lineBotService.configuration), function(re
   res.status(200).send('OK')
 })
 
+app.post('./miku-tokped-update', async function(req, res) {
+  const notify = req.query.notify;
+  await tokopediaService.getAllOrders(notify);
+  res.status(200).send('OK');
+})
+
+app.post('./miku-sleep', async function(req, res) {
+  await lineBotService.sleep();
+  res.status(200).send('OK');
+})
+
 // Start the server
 const port = process.env.PORT || 3000
 app.listen(port, () => {
-  scheduler.scheduleJob({hour: process.env.TOKOPEDIA_ORDER_NOTIFY_HOUR, minute: process.env.TOKOPEDIA_ORDER_NOTIFY_MINUTE}, function() {
-    tokopediaService.getAllOrders()
-  });
-  scheduler.scheduleJob('*/5 * * * * *', function() {
-    console.log("this test");
-  })
   console.log(`index.js listening on ${port}`)
 })
