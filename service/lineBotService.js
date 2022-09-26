@@ -23,11 +23,11 @@ async function replyText(text, replyToken) {
 async function notifyOrders(orders, notify) {
     var text = "Hello master, there is no update from Miku today. Have a good day XD"
 
-    if (notify) {
-        if (orders.arrived.length === 0 || orders.shipped.length == 0 || orders.processed.length == 0) {
+    if (orders.arrived.length === 0 || orders.shipped.length == 0 || orders.processed.length == 0) {
+        if (notify) {
             await client.pushMessage(userId, {type: 'text', text: text}, false)
-            return
         }
+        return
     }
 
     text = "Hello master, here's some update from Miku about master's order on Tokopedia :3\n\n----------------------------------------"
