@@ -30,9 +30,9 @@ async function notifyOrders(orders, notify) {
         return
     }
 
-    text = "Hello master, here's some update from Miku about master's order on Tokopedia :3\n\n----------------------------------------"
+    text = "Hello master, there is an update about master's order on Tokopedia :3\n\n----------------------------------------"
     if (notify) {
-        text = "Hello master, there is an update about master's order on Tokopedia :3\n\n----------------------------------------"
+        text = "Hello master, here's some update from Miku about master's order on Tokopedia :3\n\n----------------------------------------"
     }
 
     orders.arrived.forEach(order => {
@@ -60,10 +60,10 @@ async function notifyOrders(orders, notify) {
     })
 
     if (notify) {
-        text += "\n\nThat's all, Have a great day XD"
+        text += "\n\nThat's all, have a great day XD"
     }
     else {
-        text += "\n\nThat's all, Have a good day XD"
+        text += "\n\nThat's all, keep your spirit for the rest of the day :D"
     }
     await client.pushMessage(userId, {type: 'text', text: text}, false)
 }
