@@ -1,50 +1,50 @@
 const tokopediaOutbound = require("../outbound/tokopediaOutbound")
 const lineBotService = require("./lineBotService")
-const db = require('cyclic-dynamodb')
+const Order = require("../model/orderModel");
 const dotenv = require("dotenv")
 
 dotenv.config()
-
-const items = db(process.env.CYCLIC_DB).collection("items")
 
 async function getOrders(status) {
     const orderResult = await tokopediaOutbound.getOrders(status);
     const orders = orderResult.data[0].data.uohOrders.orders
 
-    var orderSummary = []
+    const orderSummary = []
     orders.forEach(order => {
-        var productNames = [];
+        const productNames = [];
         const products = order.metadata.products
         products.forEach(product => {
             productNames.push(product.title)
         })
         orderSummary.push({ orderId: order.verticalID, items: productNames })
     });
-    console.log(orderSummary)
     return orderSummary
 }
 
 async function getOrderTracking(orderId) {
     const orderTrackingResult = await tokopediaOutbound.getOrderTracking(orderId);
-    const orderTrackings = orderTrackingResult.data[0].data.logistic_tracking.data.track_order.track_history
+    const orderTracking = orderTrackingResult.data[0].data.logistic_tracking.data.track_order.track_history
     
-    var orderTrackingSummary = []
-    orderTrackings.forEach(orderTracking => {
+    const orderTrackingSummary = []
+    orderTracking.forEach(orderTracking => {
         orderTrackingSummary.push({time:orderTracking.date_time, status:orderTracking.status})
     })
 
-    console.log(orderTrackingSummary)
     return orderTrackingSummary
 }
 
 async function insertProcessedOrdersToDb() {
     const processedOrder = await getOrders("diproses");
-    
-    var response = [];
+
+    const response = [];
     await Promise.all(processedOrder.map(async (order) => {
-        const existingItem = await items.get(order.orderId)
+        const existingItem = await Order.findOne({ orderId: order.orderId })
         if (existingItem === null) {
-            await items.set(order.orderId, { tracking_count: 9 })
+            const newOrder = new Order({
+                orderId: order.orderId,
+                trackingCount: 0,
+            });
+            await newOrder.save();
             response.push(order);
         }
     }));
@@ -55,12 +55,24 @@ async function insertProcessedOrdersToDb() {
 async function insertShippedOrdersToDb() {
     const shippedOrder = await getOrders("dikirim")
 
-    var response = [];
+    const response = [];
     await Promise.all(shippedOrder.map(async (order) => {
         const orderTracking = await getOrderTracking(order.orderId);
-        const existingItem = await items.get(order.orderId);
-        if (existingItem === null || orderTracking.length > existingItem.props.tracking_count) {
-            await items.set(order.orderId, { tracking_count: orderTracking.length })
+        const existingItem = await Order.findOne({ orderId: order.orderId })
+
+        if (existingItem === null || orderTracking.length > existingItem.trackingCount) {
+            if (existingItem === null) {
+                const newOrder = new Order({
+                    orderId: order.orderId,
+                    trackingCount: orderTracking.length,
+                });
+                await newOrder.save()
+
+            } else if (orderTracking.length > existingItem.trackingCount) {
+                existingItem.trackingCount = orderTracking.length
+                await existingItem.save()
+            }
+
             order.log = orderTracking[0].status;
             response.push(order);
         }
@@ -72,11 +84,10 @@ async function insertShippedOrdersToDb() {
 async function insertArrivedOrdersToDb() {
     const arrivedOrder = await getOrders("tiba_di_tujuan")
 
-    var response = []
+    const response = []
     await Promise.all(arrivedOrder.map(async (order) => {
-        const existingItem = await items.get(order.orderId)
+        const existingItem = await Order.findOneAndRemove({ orderId: order.orderId })
         if (existingItem !== null) {
-            await items.delete(order.orderId)
             response.push(order);
         }
     }))

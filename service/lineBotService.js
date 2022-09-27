@@ -23,7 +23,7 @@ async function replyText(text, replyToken) {
 async function notifyOrders(orders, notify) {
     var text = "Hello master, there is no update from Miku today. Have a good day XD"
 
-    if (orders.arrived.length === 0 || orders.shipped.length == 0 || orders.processed.length == 0) {
+    if (orders.arrived.length === 0 && orders.shipped.length === 0 && orders.processed.length === 0) {
         if (notify) {
             await client.pushMessage(userId, {type: 'text', text: text}, false)
         }
@@ -60,7 +60,7 @@ async function notifyOrders(orders, notify) {
     })
 
     if (notify) {
-        text += "\n\nThat's all, Have a great day day XD"
+        text += "\n\nThat's all, Have a great day XD"
     }
     else {
         text += "\n\nThat's all, Have a good day XD"
