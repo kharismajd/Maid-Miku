@@ -1,6 +1,7 @@
 const JSSoup = require("jssoup").default
 const sixOutbound = require("../outbound/sixOutbound")
 const stringUtil = require("../util/stringUtil")
+const dateUtil = require("../util/dateUtil")
 const sixConstant = require("../constant/sixConstants")
 
 async function getMonthlySchedule(year, month) {
@@ -60,7 +61,7 @@ async function getMonthlySchedule(year, month) {
 }
 
 async function getTodaySchedule() {
-    const date = new Date()
+    const date = dateUtil.plusHours(new Date(), 6)
     const schedules = await getMonthlySchedule(date.getFullYear(), date.getMonth())
     const todaySchedule = schedules.find(x => {
         return x.date.getMonth() === date.getMonth() && x.date.getDate() === date.getDate()

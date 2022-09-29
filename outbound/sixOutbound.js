@@ -6,7 +6,7 @@ const qs = require('qs')
 function getMonthlySchedule(year, month) {
     const config = {
         method: 'get',
-        url: sixConstants.GET_ALL_SCHEDULE_URL.replace('{0}', year.toString + stringUtil.pad(month.toString(), 2)),
+        url: sixConstants.GET_ALL_SCHEDULE_URL.replace('{0}', year.toString() + stringUtil.pad(month.toString(), 2)),
         headers: sixConstants.HEADER
     };
 
