@@ -18,7 +18,7 @@ async function getMonthlySchedule(year, month) {
 
         let classDate = stringUtil.getNumberFromString(dateHtml.text)
 
-        let dateMonth = month
+        let dateMonth = month - 1
         if (schedules.length === 0 && classDate > 7) {
             dateMonth -= 1
         }
