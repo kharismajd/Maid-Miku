@@ -66,7 +66,7 @@ async function getMonthlySchedule(year, month) {
 }
 
 async function getTodaySchedule() {
-    const date = dateUtil.plusHours(new Date(), 5)
+    const date = dateUtil.plusHours(new Date(), 7)
     const schedules = await getMonthlySchedule(date.getFullYear(), date.getMonth())
     const todaySchedule = schedules.find(x => {
         return x.date.getMonth() === date.getMonth() && x.date.getDate() === date.getDate()
