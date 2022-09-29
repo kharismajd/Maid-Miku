@@ -95,19 +95,11 @@ async function insertArrivedOrdersToDb() {
     return response;
 }
 
-async function getAllOrders(notify) {
-    try {
-        const arrived = await insertArrivedOrdersToDb();
-        const shipped = await insertShippedOrdersToDb();
-        const processed = await insertProcessedOrdersToDb();
-        const orders = {arrived, shipped, processed};
-        await lineBotService.notifyOrders(orders, notify);
-    } catch(error) {
-        console.log(error)
-        if (notify) {
-            await lineBotService.notifyError();
-        }
-    }
+async function getAllOrders() {
+    const arrived = await insertArrivedOrdersToDb();
+    const shipped = await insertShippedOrdersToDb();
+    const processed = await insertProcessedOrdersToDb();
+    return { arrived, shipped, processed };
 }
 
 module.exports = {

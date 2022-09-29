@@ -28,17 +28,20 @@ app.post('/callback', line.middleware(lineBotService.configuration), function(re
 })
 
 app.post('/miku-tokped-update', async function(req, res) {
-  const notify = parseInt(req.query.notify);
-  await tokopediaService.getAllOrders(notify);
+  await lineBotService.notifyOrders();
+  res.status(200).send('OK');
+})
+
+app.post('/miku-today-schedule', async function(req, res) {
+  await lineBotService.notifyTodaySchedule();
   res.status(200).send('OK');
 })
 
 app.post('/miku-sleep', async function(req, res) {
-  await lineBotService.sleep();
+  await lineBotService.notifySleep();
   res.status(200).send('OK');
 })
 
-// Start the server
 const port = process.env.PORT || 3001
 db.connectToDB().then((_) => {
   app.listen(port, (_) => {
