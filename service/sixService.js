@@ -5,11 +5,12 @@ const dateUtil = require("../util/dateUtil")
 const sixConstant = require("../constant/sixConstants")
 
 async function getMonthlySchedule(year, month) {
+    let dateMonth = month
+
     const rawSchedule = await sixOutbound.getMonthlySchedule(year, month + 1)
     const rawScheduleHtml = new JSSoup(rawSchedule.data)
 
     const schedulesHtml = rawScheduleHtml.findAll("td");
-
     const schedules = []
     for (let i = 0; i < schedulesHtml.length; i++) {
         const dateHtml = schedulesHtml[i].find("div", {"class": ""})
@@ -18,7 +19,6 @@ async function getMonthlySchedule(year, month) {
 
         let classDate = stringUtil.getNumberFromString(dateHtml.text)
 
-        let dateMonth = month
         if (schedules.length === 0 && classDate > 7) {
             dateMonth -= 1
         }
@@ -57,18 +57,25 @@ async function getMonthlySchedule(year, month) {
         schedules.push({ date, classes })
     }
 
+    schedules.forEach(sched => {
+        console.log(sched.date.getMonth())
+        console.log(sched.date.getDate())
+    })
+
     return schedules
 }
 
 async function getTodaySchedule() {
-    const date = dateUtil.plusHours(new Date(), 7)
+    const date = dateUtil.plusHours(new Date(), 5)
     const schedules = await getMonthlySchedule(date.getFullYear(), date.getMonth())
     const todaySchedule = schedules.find(x => {
         return x.date.getMonth() === date.getMonth() && x.date.getDate() === date.getDate()
     })
-
+    console.log(todaySchedule)
     return todaySchedule
 }
+
+getTodaySchedule()
 
 module.exports = {
     getTodaySchedule
