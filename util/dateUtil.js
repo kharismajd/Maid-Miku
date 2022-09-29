@@ -1,5 +1,8 @@
 function plusHours(date, h) {
-    return date.getTime() + (h * 60 * 60 * 1000)
+    const time = date.getTime() + (h * 60 * 60 * 1000)
+    const newDate = new Date()
+    newDate.setTime(time)
+    return newDate
 }
 
 module.exports = {
