@@ -120,6 +120,10 @@ async function notifyOrders() {
     try {
         const orders = await tokopediaService.getAllOrders()
 
+        if (orders.arrived.length === 0 && orders.shipped.length === 0 && orders.processed.length === 0) {
+            return
+        }
+
         var text = "Hello master, there are updates about master's order on Tokopedia :3\n\n----------------------------------------"
 
         orders.arrived.forEach(order => {
