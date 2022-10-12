@@ -111,7 +111,7 @@ function wrapClassMessage(contents) {
 }
 
 async function notifyError(message) {
-    const text = "Sorry master, There seems to be an error in Miku's system :(. Please help to fix it so Miku can give her best to help master :D"
+    var text = "Sorry master, There seems to be an error in Miku's system :(. Please help to fix it so Miku can give her best to help master :D"
     text += "\n\nError message: " + message
     await client.pushMessage(userId, {type: 'text', text: text}, false)
 }
