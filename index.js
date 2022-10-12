@@ -1,5 +1,6 @@
 const express = require('express');
 const line = require('@line/bot-sdk');
+const axios = require('axios');
 const cors = require("cors");
 const lineBotService = require("./service/lineBotService");
 const tokopediaService = require("./service/tokopediaService");
@@ -39,6 +40,11 @@ app.post('/miku-today-schedule', async function(req, res) {
 app.post('/miku-sleep', async function(req, res) {
   await lineBotService.notifySleep();
   res.status(200).send('OK');
+})
+
+app.post('/test-endpoint', async function(req, res) {
+  await axios.get(process.env.PING_HOST);
+  res.status(200).send('OK')
 })
 
 const port = process.env.PORT || 3001
