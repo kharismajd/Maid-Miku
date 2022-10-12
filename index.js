@@ -10,20 +10,19 @@ dotenv.config()
 
 const app = express()
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-
-app.use(cors());
-
-app.get('/', function(req, res){
-  res.status(200).send('OK')
-})
-
-app.post('/callback', function(req, res) {
+app.post('/callback', line.middleware(lineBotService.configuration), function(req, res) {
   req.body.events.map(async (event) => {
       const replyText = "Hello master, these are the features that master has given to Miku XD:\n\n- Miku will give updates about master's order on Tokopedia every 9AM\n\nThat's all, please give Miku more features in the future :3";
       await lineBotService.replyText(replyText, event.replyToken)
   })
+  res.status(200).send('OK')
+})
+
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(cors());
+
+app.get('/', function(req, res){
   res.status(200).send('OK')
 })
 
