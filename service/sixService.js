@@ -1,4 +1,5 @@
 const JSSoup = require("jssoup").default
+const scheduler = require("node-schedule")
 const sixOutbound = require("../outbound/sixOutbound")
 const stringUtil = require("../util/stringUtil")
 const dateUtil = require("../util/dateUtil")
@@ -42,12 +43,12 @@ async function getMonthlySchedule(year, month) {
             endDate.setHours(parseInt(classHour.split("-")[1].split(":")[0]), parseInt(classHour.split("-")[1].split(":")[1]), 0, 0)
 
             const name = linksHtml[j].attrs["data-kuliah"]
-            const url = sixConstant.SIX_URL + linksHtml[j].attrs["data-url"].split("?")[0]
+            const id =  parseInt(linksHtml[j].attrs["data-url"].match(/pertemuan\/(.*?)\/mhs/i)[1])
             let location = classesText.split("\n")[3].trim()
             location = location.replace("(", "")
             location = location.replace(")", "")
 
-            classes.push({ name, url, startDate, endDate, location })
+            classes.push({ name, id, startDate, endDate, location })
         }
 
         const date = new Date()
@@ -56,11 +57,6 @@ async function getMonthlySchedule(year, month) {
 
         schedules.push({ date, classes })
     }
-
-    schedules.forEach(sched => {
-        console.log(sched.date.getMonth())
-        console.log(sched.date.getDate())
-    })
 
     return schedules
 }
@@ -71,11 +67,9 @@ async function getTodaySchedule() {
     const todaySchedule = schedules.find(x => {
         return x.date.getMonth() === date.getMonth() && x.date.getDate() === date.getDate()
     })
-    console.log(todaySchedule)
+
     return todaySchedule
 }
-
-getTodaySchedule()
 
 module.exports = {
     getTodaySchedule

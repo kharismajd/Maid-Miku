@@ -46,7 +46,7 @@ function markAsAttended(id, token, returnTo) {
         method: 'post',
         url: sixConstants.MARK_AS_ATTENDED_URL.replace('{0}', id.toString()) + "?returnTo=" + returnTo,
         headers: sixConstants.HEADER,
-        const : data
+        data : data
     };
 
     return axios(config)

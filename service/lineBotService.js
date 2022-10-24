@@ -1,6 +1,10 @@
 const line = require('@line/bot-sdk')
 const dotenv = require("dotenv")
+const JSSoup = require("jssoup").default
+const scheduler = require("node-schedule")
 const stringUtil = require("../util/stringUtil")
+const dateUtil = require("../util/dateUtil")
+const sixOutbound = require("../outbound/sixOutbound")
 const sixService = require("./sixService")
 const tokopediaService = require("./tokopediaService")
 
@@ -16,6 +20,65 @@ const userId = process.env.USER_ID;
 
 async function replyText(text, replyToken) {
     await client.replyMessage(replyToken, {type: 'text', text: text}, false)
+}
+
+function isReadyToAttend(attendanceForm) {
+    return attendanceForm.find("button", {"id": "form_hadir"}) ? true : false
+}
+
+async function tryToAttend(id) {
+    const attendanceForm = await sixOutbound.getSchedule(id)
+    const attendanceFormSoup = new JSSoup(attendanceForm.data)
+
+    if (!isReadyToAttend(attendanceFormSoup)) {
+        return false
+    }
+
+    const returnTo = attendanceFormSoup.find("input", {"id": "form_returnTo"}).attrs["value"]
+    const token = attendanceFormSoup.find("input", {"id": "form__token"}).attrs["value"]
+
+    await sixOutbound.markAsAttended(id, token, returnTo)
+    return true
+}
+
+function scheduleAutoAttend(todaySchedule) {
+    todaySchedule.classes.forEach(schedule => {
+        const rule = new scheduler.RecurrenceRule();
+        rule.minute = new scheduler.Range(0, 59, 3);
+        const startDate = dateUtil.plusHours(schedule.startDate, -7)
+        const endDate = dateUtil.plusHours(schedule.endDate, -7)
+        const jobAttendanceReminder = scheduler.scheduleJob(schedule.name + "reminder" , startDate - 300000, async function() {
+            const text = "Hello master, your class " + schedule.name + " at " + schedule.location + " will start in 5 minutes"
+            text += "\n\nMiku will tell you when the attendance form is openned :3"
+            await client.pushMessage(userId, { type: 'text', text: text }, false)
+        })
+        const jobAttendanceFailed = scheduler.scheduleJob(schedule.name + "failed" , endDate, async function() {
+            const text = "Hmmm, looks like the attendance form is not openned at all :(. Did the lecturer record the attendance manually master?"
+            await client.pushMessage(userId, { type: 'text', text: text }, false)
+        })
+        const jobAttendance = scheduler.scheduleJob(schedule.name ,{ start: startDate, end: endDate, rule: rule }, async function() {
+            try {
+                const isSuccess = await tryToAttend(schedule.id);
+                if (isSuccess) {
+                    scheduler.scheduledJobs[schedule.name].cancel()
+                    scheduler.scheduledJobs[schedule.name + "reminder"].cancel()
+                    scheduler.scheduledJobs[schedule.name + "failed"].cancel()
+                    const text = "Attendace form for " + schedule.name + " has openned and Miku has successfully to mark as attended for you"
+                    text += "\n\nNow you can focus on your study :3"
+                    await client.pushMessage(userId, { type: 'text', text: text }, false)
+                }
+            }
+            catch (e) {
+                scheduler.scheduledJobs[schedule.name].cancel()
+                scheduler.scheduledJobs[schedule.name + "reminder"].cancel()
+                scheduler.scheduledJobs[schedule.name + "failed"].cancel()
+                console.log(error.message)
+                const text = "Attendace form for " + schedule.name + " has openned and Miku has failed to mark as attended for you"
+                text += "\n\nPlease check the attendance formm and sorry for not being able to help T_T"
+                await client.pushMessage(userId, { type: 'text', text: text }, false)
+            }
+        })
+    })
 }
 
 function createLeftBoxContent(classes) {
@@ -185,6 +248,7 @@ async function notifyTodaySchedule() {
         ]
 
         await client.pushMessage(userId, classesMessage, false)
+        scheduleAutoAttend(schedule)
     } catch(error) {
         console.log(error.message)
         notifyError("Cannot get today schedule")
