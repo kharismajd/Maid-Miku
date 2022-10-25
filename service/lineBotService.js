@@ -48,12 +48,12 @@ function scheduleAutoAttend(todaySchedule) {
         const startDate = dateUtil.plusHours(schedule.startDate, -7)
         const endDate = dateUtil.plusHours(schedule.endDate, -7)
         const jobAttendanceReminder = scheduler.scheduleJob(schedule.name + "reminder" , startDate - 300000, async function() {
-            const text = "Hello master, your class " + schedule.name + " at " + schedule.location + " will start in 5 minutes"
+            var text = "Hello master, your class " + schedule.name + " at " + schedule.location + " will start in 5 minutes"
             text += "\n\nMiku will tell you when the attendance form is openned :3"
             await client.pushMessage(userId, { type: 'text', text: text }, false)
         })
         const jobAttendanceFailed = scheduler.scheduleJob(schedule.name + "failed" , endDate, async function() {
-            const text = "Hmmm, looks like the attendance form is not openned at all :(. Did the lecturer record the attendance manually master?"
+            var text = "Hmmm, looks like the attendance form is not openned at all :(. Did the lecturer record the attendance manually master?"
             await client.pushMessage(userId, { type: 'text', text: text }, false)
         })
         const jobAttendance = scheduler.scheduleJob(schedule.name ,{ start: startDate, end: endDate, rule: rule }, async function() {
@@ -63,7 +63,7 @@ function scheduleAutoAttend(todaySchedule) {
                     scheduler.scheduledJobs[schedule.name].cancel()
                     scheduler.scheduledJobs[schedule.name + "reminder"].cancel()
                     scheduler.scheduledJobs[schedule.name + "failed"].cancel()
-                    const text = "Attendace form for " + schedule.name + " has openned and Miku has successfully to mark as attended for you"
+                    var text = "Attendace form for " + schedule.name + " has openned and Miku has successfully to mark as attended for you"
                     text += "\n\nNow you can focus on your study :3"
                     await client.pushMessage(userId, { type: 'text', text: text }, false)
                 }
@@ -73,7 +73,7 @@ function scheduleAutoAttend(todaySchedule) {
                 scheduler.scheduledJobs[schedule.name + "reminder"].cancel()
                 scheduler.scheduledJobs[schedule.name + "failed"].cancel()
                 console.log(error.message)
-                const text = "Attendace form for " + schedule.name + " has openned and Miku has failed to mark as attended for you"
+                var text = "Attendace form for " + schedule.name + " has openned and Miku has failed to mark as attended for you"
                 text += "\n\nPlease check the attendance formm and sorry for not being able to help T_T"
                 await client.pushMessage(userId, { type: 'text', text: text }, false)
             }
