@@ -1,34 +1,22 @@
-# Starter REST Api
-
-This is an example REST Api designed to be deployed on Cyclic.sh
-
-[![Deploy to Cyclic](https://deploy.cyclic.app/button.svg)](https://deploy.cyclic.app/)
+# A Personal Maid for a Degenerate
+A line bot used for my daily needs. Mainly using jssoup for web scraping, Tokopedia public GraphQL API, and cronjob.org for scheduling
 
 
-## Examples
+## Features
 
-### Create/Update - Insert/Upsert
+### Class Reminder
 
-```shell
-curl -i https://localhost:3000/animals/rin%20tin%20tin \
-    --data '{"breed":"German Shepard", "gender": "male"}' \
-    -XPOST -H 'Content-Type: application/json'
-```
+![Miku-Remind](./img/Miku-Remind.jpg)
 
-### Read All - List
 
-```shell
-curl -i https://localhost:3000/animals
-```
+### Auto Attendance
 
-### Read
+![Miku-Remind](./img/Miku-AutoAttendance.jpg)
 
-```shell
-curl -i https://localhost:3000/animals/lassy
-```
+### Tokopedia Order Update
 
-### Delete
+![Miku-Remind](./img/Miku-TokpedUpdate.jpg)
 
-```shell
-curl -i -XDELETE https://localhost:3000/animals/lassy
-```
+
+## Todo
+- Add other features if needed
